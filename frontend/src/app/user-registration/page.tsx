@@ -139,7 +139,7 @@ export default function UserRegistrationPage() {
           ]
         }
 
-        console.log('📤 Sending userData to backend:', userData)
+        // console.log('📤 Sending userData to backend:', userData)
 
         // Send data to backend using AuthContext
         await completeRegistration(userData)
