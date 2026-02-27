@@ -1,18 +1,8 @@
 import httpx
 import os
 from dotenv import load_dotenv
-import asyncio
 
 load_dotenv()
-
-
-async def openepi_soil_type(lat, lon, top_k=5):
-    url = "https://api.openepi.io/soil/type"
-    params = {"lat": lat, "lon": lon, "top_k": top_k}
-    async with httpx.AsyncClient(timeout=20.0) as client:
-        response = await client.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
 
 
 async def get_isda_access_token(username: str, password: str) -> str:
@@ -49,10 +39,6 @@ async def fetch_isda_soil_property(lat: float, lon: float, depth: str = "0-20") 
 
 
 def simplify_soil_response(soil_type: dict, isda_property: dict) -> dict:
-    most_probable_soil_type = None
-    if soil_type and soil_type.get("properties"):
-        most_probable_soil_type = soil_type["properties"].get("most_probable_soil_type")
-
     def get_isda_value(prop_name):
         prop = isda_property.get("property", {}).get(prop_name)
         if prop and isinstance(prop, list) and prop[0].get("value"):
@@ -65,9 +51,11 @@ def simplify_soil_response(soil_type: dict, isda_property: dict) -> dict:
             return prop[0]["value"].get("value")
         return None
 
+    texture_class = get_isda_str_value("texture_class")
+
     summary = {
-        "soil_type": most_probable_soil_type,
-        "texture_class": get_isda_str_value("texture_class"),
+        "soil_type": texture_class,
+        "texture_class": texture_class,
         "ph": get_isda_value("ph"),
         "nitrogen_total_g_per_kg": get_isda_value("nitrogen_total"),
         "phosphorous_extractable_ppm": get_isda_value("phosphorous_extractable"),
@@ -95,7 +83,5 @@ def simplify_soil_response(soil_type: dict, isda_property: dict) -> dict:
 async def get_soil_summary_async(
     lat: float, lon: float, depth: str = "0-20", top_k: int = 5
 ) -> dict:
-    soil_type_task = openepi_soil_type(lat, lon, top_k)
-    isda_property_task = fetch_isda_soil_property(lat, lon, depth)
-    soil_type, isda_property = await asyncio.gather(soil_type_task, isda_property_task)
-    return simplify_soil_response(soil_type, isda_property)
+    isda_property = await fetch_isda_soil_property(lat, lon, depth)
+    return simplify_soil_response({}, isda_property)
