@@ -538,9 +538,9 @@ User message:
 Provide a brief, helpful answer tailored to the farmer's context."""
 
     llm_response = llm_service.send_message(
-        prompt, temperature=0.2, max_output_tokens=280
+        prompt, temperature=0.2, max_output_tokens=640
     )
-    llm_text = llm_response.get("response", "")
+    llm_text = llm_response.get("response") or ""
 
     chat_session_manager.add_message(session_id, sender="llm", message=llm_text)
     # Translate LLM response back if needed
@@ -631,9 +631,9 @@ User message:
 Provide a brief, helpful answer tailored to the farmer's context."""
 
     llm_response = llm_service.send_message(
-        prompt, temperature=0.2, max_output_tokens=280
+        prompt, temperature=0.2, max_output_tokens=640
     )
-    llm_text = llm_response.get("response", "")
+    llm_text = llm_response.get("response") or ""
 
     chat_session_manager.add_message(req.session_id, sender="llm", message=llm_text)
 
@@ -776,9 +776,9 @@ Provide a brief, helpful answer tailored to the farmer's context."""
 
     # Get LLM response
     llm_response = llm_service.send_message(
-        prompt, temperature=0.2, max_output_tokens=280
+        prompt, temperature=0.2, max_output_tokens=640
     )
-    llm_text = llm_response.get("response", "")
+    llm_text = llm_response.get("response") or ""
 
     # Add LLM response to chat session
     chat_session_manager.add_message(session_id, sender="llm", message=llm_text)
@@ -929,8 +929,10 @@ current user message:
 
 Respond as the agricultural assistant, taking into account the farmer's specific profile, location, experience level, and crops. Provide personalized advice that considers their farming context."""
 
-                llm_response_local = llm_service.send_message(prompt_local)
-                llm_text_local = llm_response_local.get("response", "")
+                llm_response_local = llm_service.send_message(
+                    prompt_local, temperature=0.2, max_output_tokens=640
+                )
+                llm_text_local = llm_response_local.get("response") or ""
                 chat_session_manager.add_message(
                     session_id, sender="llm", message=llm_text_local
                 )
@@ -1013,8 +1015,10 @@ current user message:
 {message_for_llm}
 
 Respond as the agricultural assistant, taking into account the farmer's specific profile, location, experience level, and crops. Provide personalized advice that considers their farming context."""
-    llm_response = llm_service.send_message(prompt)
-    llm_text = llm_response.get("response", "")
+    llm_response = llm_service.send_message(
+        prompt, temperature=0.2, max_output_tokens=640
+    )
+    llm_text = llm_response.get("response") or ""
     chat_session_manager.add_message(session_id, sender="llm", message=llm_text)
     if needs_translation and llm_text:
         try:
